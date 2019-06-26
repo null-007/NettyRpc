@@ -23,6 +23,7 @@ import java.util.concurrent.locks.ReentrantLock;
  * RPC Connect Manage of ZooKeeper
  * Created by luxiaoxun on 2016-03-16.
  */
+//连接管理指的是客户端一侧的，用于选择一个可用的服务端节点
 public class ConnectManage {
     private static final Logger logger = LoggerFactory.getLogger(ConnectManage.class);
     private volatile static ConnectManage connectManage;
@@ -103,7 +104,7 @@ public class ConnectManage {
             }
         }
     }
-
+    // 重连接
     public void reconnect(final RpcClientHandler handler, final SocketAddress remotePeer) {
         if (handler != null) {
             connectedHandlers.remove(handler);
@@ -161,6 +162,7 @@ public class ConnectManage {
         }
     }
 
+    //连接管理指的是客户端一侧的，用于选择一个可用的服务端节点
     public RpcClientHandler chooseHandler() {
         int size = connectedHandlers.size();
         while (isRuning && size <= 0) {

@@ -29,7 +29,7 @@ public class PersonCallbackTest {
                 public void success(Object result) {
                     List<Person> persons = (List<Person>) result;
                     for (int i = 0; i < persons.size(); ++i) {
-                        System.out.println(persons.get(i));
+                        System.out.println("success:" + persons.get(i));
                     }
                     countDownLatch.countDown();
                 }

@@ -31,6 +31,7 @@ public class RpcHandler extends SimpleChannelInboundHandler<RpcRequest> {
 
     @Override
     public void channelRead0(final ChannelHandlerContext ctx, final RpcRequest request) throws Exception {
+        // 这种异步方式真的安全吗？
         RpcServer.submit(new Runnable() {
             @Override
             public void run() {

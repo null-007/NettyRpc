@@ -65,7 +65,7 @@ public class RpcServer implements ApplicationContextAware, InitializingBean {
             }
         }
     }
-
+    // hq:用于加载bean实例后做初始化操作
     @Override
     public void afterPropertiesSet() throws Exception {
         start();
@@ -117,19 +117,19 @@ public class RpcServer implements ApplicationContextAware, InitializingBean {
                                     .addLast(new RpcHandler(handlerMap));
                         }
                     })
-                    .option(ChannelOption.SO_BACKLOG, 128)
-                    .childOption(ChannelOption.SO_KEEPALIVE, true);
+                    .option(ChannelOption.SO_BACKLOG, 128)           // 解释？
+                    .childOption(ChannelOption.SO_KEEPALIVE, true);  // 解释？
 
             String[] array = serverAddress.split(":");
             String host = array[0];
             int port = Integer.parseInt(array[1]);
 
-            ChannelFuture future = bootstrap.bind(host, port).sync();
+            ChannelFuture future = bootstrap.bind(host, port).sync(); //同步，bind 阻塞返回
             logger.info("Server started on port {}", port);
 
             if (serviceRegistry != null) {
                 serviceRegistry.register(serverAddress);
-            }
+            } // else ？
 
             future.channel().closeFuture().sync();
         }

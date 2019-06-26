@@ -27,6 +27,8 @@ public class RPCFuture implements Future<Object> {
     private long startTime;
     private long responseTimeThreshold = 5000;
 
+    // 为什么设计成list,一个Future难道会有多个callbacks？
+    // 是的回调 Function 是的注册数量理论上是没有限制的。而且它们属于同一个 future
     private List<AsyncRPCCallback> pendingCallbacks = new ArrayList<AsyncRPCCallback>();
     private ReentrantLock lock = new ReentrantLock();
 
@@ -80,6 +82,9 @@ public class RPCFuture implements Future<Object> {
     public void done(RpcResponse reponse) {
         this.response = reponse;
         sync.release(1);
+        // future.get 和 callback 都在这个方法中试下了
+        // 如果没有回调 Function，那么下面的方法会失效
+        // 使用了 sync 来替代实现 countDownLatch 的效果
         invokeCallbacks();
         // Threshold
         long responseTime = System.currentTimeMillis() - startTime;
@@ -103,6 +108,7 @@ public class RPCFuture implements Future<Object> {
         lock.lock();
         try {
             if (isDone()) {
+                // 数据已经准备好了
                 runCallback(callback);
             } else {
                 this.pendingCallbacks.add(callback);
@@ -115,6 +121,8 @@ public class RPCFuture implements Future<Object> {
 
     private void runCallback(final AsyncRPCCallback callback) {
         final RpcResponse res = this.response;
+        // 这里直接执行就好了啊，为什么要扔到其他线程上去呢？
+        // 害怕被阻塞？
         RpcClient.submit(new Runnable() {
             @Override
             public void run() {
